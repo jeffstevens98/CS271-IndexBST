@@ -132,7 +132,6 @@ class indexBST
 */
 
 
-
 		indexBST(string fileName)   //I belive this is the correct constructor
 		/*
 		* indexBST constructor
@@ -149,6 +148,7 @@ class indexBST
 			bool inWords = false;
 			while(getline(input,content)) //grab each line of the file
 			{
+				cout << "getting a new line to process..." << endl;
 				inWords = false;
 				word = "";
 				lineNum++;
@@ -168,14 +168,21 @@ class indexBST
 							//Create a new node
 							if (rootPtr == nullptr) //
 							{
-								cout << "assigning values to root pointer";
+								cout << "assigning values to root pointer" << endl;
+								rootPtr = new IndexBST_Node();
 								rootPtr->word = word;
+								cout << "assiging word data..." << endl;
 								rootPtr->wordCount++;
+								cout << "incrementing word count..." << endl;
 								rootPtr->lines.push_back(lineNum);
+								cout << "pushing back line num into vector..." << endl;
+								cout << "sucessfully created a node" << endl;
 							}
 							else
 							{
+								cout << "calling insert" << endl;
 								insert(word, lineNum);
+								cout << "completed insert function" << endl;
 							}
 							words.push_back(word);
 							word = "";
@@ -183,9 +190,12 @@ class indexBST
 						}
 						else //if the word is already a word that we've seen, update its node value
 						{
-							IndexBST_Node* parent = rootPtr;
+							cout << "updating node values..." << endl;
+							IndexBST_Node* parent = new IndexBST_Node();
+							parent = rootPtr;
 							if(rootPtr->word== word)
 							{
+								cout << "updating root pointer" << endl;
 								rootPtr->wordCount++;
 								rootPtr->lines.push_back(lineNum);
 							}
@@ -193,22 +203,23 @@ class indexBST
 							{
 								while(parent != nullptr)
 								{
+									cout << "traversing..." << endl;
 									if(parent->word > word)
 									{
-										parent= parent->leftPtr;
+										parent = parent->leftPtr;
 									}
 									else if (parent->word < word)
 									{
-										parent=parent->rightPtr;
+										parent = parent->rightPtr;
 									}
 									else if (parent->word== word)
 									{
 										parent->wordCount++;
 										parent->lines.push_back(lineNum);
 									}
-
 								}
 							}
+							inWords = false;
 						}
 					}
 					else
@@ -219,7 +230,6 @@ class indexBST
 			}
 			cout << rootPtr->word;
 		}
-
 
 
 
@@ -235,30 +245,35 @@ class indexBST
 		*		Returns nothing, but modifies the existing indexBST object.
 		*/
 		{
-			IndexBST_Node* parent = rootPtr;
-			IndexBST_Node* child = rootPtr;
-			if(rootPtr== nullptr)
+			if(rootPtr == nullptr)
 			{
+				cout << "inserting at root" << endl;
+			    rootPtr = new IndexBST_Node();
 				rootPtr->word= entry;
 				rootPtr->wordCount++;
 				rootPtr->lines.push_back(line);
 			}
 			else
 			{
+				cout << "inserting a leaf node" << endl;
+				IndexBST_Node* parent = rootPtr;
+				IndexBST_Node* child = rootPtr;
 				while(child != nullptr)
 				{
-					parent= child;
+					parent = child;
 					if(parent->word > entry)
 					{
-						child= parent->leftPtr;
+						cout << "moving child to left node" << endl;
+						child = parent->leftPtr;
 					}
 					else
 					{
-						child=parent->rightPtr;
+						cout << "moving child to right node" << endl;
+						child =parent->rightPtr;
 					}
 
 				}
-				if(parent-> leftPtr== child)
+				if(parent-> leftPtr == child)
 				{
 					parent->leftPtr-> word= entry;
 					parent->leftPtr-> wordCount+=1;

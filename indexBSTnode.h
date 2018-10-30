@@ -21,7 +21,10 @@ using namespace std;
 class IndexBST_Node {
    friend class indexBST;
 public:
-   //IndexBST_Node(const NODETYPE& d) : data{d} {}
+   IndexBST_Node() //constructor
+   {
+	word = "hello world!";
+   }
    //NODETYPE getData() const {return data;}
 private:
    IndexBST_Node* leftPtr{nullptr};

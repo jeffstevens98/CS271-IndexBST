@@ -71,6 +71,8 @@ class indexBST
 						}
 						if (inWords == false) // if we haven't seen the word, create a node for it
 						{
+							//cout << "pushing back a new word: " << word << endl;
+							words.push_back(word);
 							//Create a new node
 							if (rootPtr == nullptr) //
 							{
@@ -90,9 +92,9 @@ class indexBST
 								insert(word, lineNum);
 								//cout << "completed insert function" << endl;
 							}
-							words.push_back(word);
-							word = "";
+							//reset word string
 							inWords = false;
+							word = "";
 						}
 						else //if the word is already a word that we've seen, update its node value
 						{
@@ -102,8 +104,11 @@ class indexBST
 							if(rootPtr->word == word)
 							{
 								//cout << "updating root pointer" << endl;
+								if (inVec(rootPtr->lines,lineNum) == false)
+								{
+									rootPtr->lines.push_back(lineNum);
+								}
 								rootPtr->wordCount++;
-								rootPtr->lines.push_back(lineNum);
 							}
 							else
 							{
@@ -126,7 +131,10 @@ class indexBST
 									{
 										//cout << "updating wordCount and line vector..." << endl;
 										parent->wordCount++;
-										parent->lines.push_back(lineNum);
+										if (inVec(parent->lines,lineNum) == false)
+										{
+											parent->lines.push_back(lineNum);
+										}
 										break;
 									}
 								}
@@ -291,7 +299,7 @@ class indexBST
 		*/
 		{
 			//make list of all nodes
-			//modify sorting algorithtm to sort nodes based on word values
+			//modify sorting algorithm to sort nodes based on word values
 			//print word, occurence, and line numbers
 		}
 
@@ -299,7 +307,7 @@ class indexBST
 
 
 
-		void traversal()       //bool printText = true          stays almost same, commented out unecessary parts (I think)
+		void traversal()
 		/*
 		* Traversal method
 		* This method produces a breadth-first traversal of the BST.
@@ -312,39 +320,36 @@ class indexBST
 			vector<IndexBST_Node*> visitedNodeStack;
 			IndexBST_Node* temp = rootPtr;
 			if (temp == nullptr)
-				cout<<"No nodes in tree";
-
-			//if (printText == true)
-			//{
-			cout << temp->word;
-		//	}
-			visitedNodeStack.push_back(temp);
-			while(temp != nullptr)
 			{
-				if(temp->leftPtr != nullptr)
-				{
-					//if (printText == true)
-						//{
-						cout << temp->leftPtr->word;
-					//	}
-					visitedNodeStack.push_back(temp->leftPtr);
-				}
-				if(temp->rightPtr != nullptr)
-				{
-					//if (printText == true)
-					//{
-					cout << temp->rightPtr->word;
-					//}
-					visitedNodeStack.push_back(temp->rightPtr);
-				}
-				visitedNodeStack.erase(visitedNodeStack.begin());
-				temp = visitedNodeStack[0];
+				cout<< "No nodes in tree" << endl;
+				return;
 			}
+			else
+			{
+				cout << temp->word << ", ";
+				visitedNodeStack.push_back(temp);
+				while(temp != nullptr && visitedNodeStack.size() > 0)
+				{
+					if(temp->leftPtr != nullptr)
+					{
+						cout << temp->leftPtr->word << ", ";
+						visitedNodeStack.push_back(temp->leftPtr);
+					}
+					if(temp->rightPtr != nullptr)
+					{
+						cout << temp->rightPtr->word << ", ";
+						visitedNodeStack.push_back(temp->rightPtr);
+					}
+					visitedNodeStack.erase(visitedNodeStack.begin());
+					temp = visitedNodeStack[0];
+				}
+			}
+			cout << "END TRAVERSAL" << "\n\n";
 		}
 
 
 
-		string maxOccurrences()    //can stay the same
+		string maxOccurrences()
 		/*
 		* Max occurences method
 		* Gives the words in the document which have the max occurrences.
@@ -355,65 +360,72 @@ class indexBST
 		*/
 		{
 			int max = 0;
-			vector<string> words;
+			vector<string> words; //contains the words of the max occurrence value
 			vector<IndexBST_Node*> visitedNodeStack;
 			IndexBST_Node* temp = rootPtr;
 			if (temp == nullptr)
 			{
 				return "Tree is Empty";
 			}
-
-
-			max= temp->wordCount;
+			max = temp->wordCount;
 			visitedNodeStack.push_back(temp);
-			while(temp != nullptr)
+			while(temp != nullptr && visitedNodeStack.size() > 0) //traversal loop
 			{
 				if(temp->leftPtr != nullptr)
 				{
 					visitedNodeStack.push_back(temp->leftPtr);
-					if(temp->leftPtr->wordCount>max)
+					if(temp->leftPtr->wordCount > max) //if the word count of the left child is greater, we update the max information
 					{
 						max=temp->leftPtr->wordCount;
-						words.clear();
-						words.push_back(temp->leftPtr->word);
+						words.clear(); //empty the vector we had
+						words.push_back(temp->leftPtr->word); //push back a single word from the new max into the vector
 					}
-					if(temp->leftPtr->wordCount==max)
+					if(temp->leftPtr->wordCount == max) //if the word count is the same, we just push back another word into the list
 					{
+						if (inVec(words,temp->leftPtr->word) == false)
+						{
 						words.push_back(temp->leftPtr->word);
+						}
 					}
 				}
 				if(temp->rightPtr != nullptr)
 				{
-					visitedNodeStack.push_back(temp->rightPtr);
-					if(temp->rightPtr->wordCount>max)
+					visitedNodeStack.push_back(temp->rightPtr); // all same as above, but for the right child
+					if(temp->rightPtr->wordCount > max)
 					{
 						max=temp->rightPtr->wordCount;
 						words.clear();
-						words.push_back(temp->rightPtr->word);
+						words.push_back(temp->rightPtr->word);	
 					}
-					if(temp->rightPtr->wordCount==max)
+					if(temp->rightPtr->wordCount == max)
 					{
+						if (inVec(words,temp->rightPtr->word) == false)
+						{
 						words.push_back(temp->rightPtr->word);
+						}
 					}
 				}
 				visitedNodeStack.erase(visitedNodeStack.begin());
 				temp = visitedNodeStack[0];
 			}
-			int i= 0;
-			string listOfWords= "";
-			while(i< words.size())
+			int i = 0;
+			string listOfWords = "";
+			while(i < words.size())
 			{
-					listOfWords+= words[i];
-					listOfWords+=", ";
+					listOfWords += words[i];
+					if (i != words.size()-1)
+					{
+						listOfWords += ", ";
+					}
+					i++;
 			}
 			return listOfWords;
-
 		}
 
 
 
 
-		void startsWith(int character) //an integer?
+		void startsWith(int character)
 		/*
 		* Starts-with method
 		* Prints all of the words in the document that start with a given letter.
@@ -430,7 +442,7 @@ class indexBST
 				cout<< "No words in file";
 			}
 
-			if(temp->word[0]== character)
+			if(temp->word[0] == character)
 			{
 				cout<<temp->word<<", "<< temp->wordCount<<", "<<"Lines: ";
 				for(int j;j<temp->lines.size(); j++)
@@ -446,47 +458,34 @@ class indexBST
 					}
 				}
 			}
+			
 			visitedNodeStack.push_back(temp);
-			while(temp != nullptr)
+			while(temp != nullptr && visitedNodeStack.size() > 0)
 			{
 				if(temp->leftPtr != nullptr)
 				{
 					visitedNodeStack.push_back(temp->leftPtr);
-					if(temp->leftPtr->word[0]== character)
+					if(temp->leftPtr->word[0] == character)
 					{
 						cout<<temp->leftPtr->word<<", "<< temp->leftPtr->wordCount<<", "<<"Lines: ";
-						for(int j;j<temp->leftPtr->lines.size(); j++)
+						for(int j = 0; j < temp->leftPtr->lines.size() ; j++)
 						{
-							cout<< temp->leftPtr->lines[j];
-							if(j<temp->leftPtr->lines.size()-1)
-							{
-								cout<<", ";
-							}
-							else
-							{
-								cout<< endl;
-							}
+							cout << temp->leftPtr->lines[j] << ", ";
 						}
+						cout << "\n";
 					}
 				}
-				if(temp->rightPtr != nullptr)
+				if (temp->rightPtr != nullptr)
 				{
 					visitedNodeStack.push_back(temp->rightPtr);
 					if(temp->rightPtr->word[0]== character)
 					{
 						cout<<temp->rightPtr->word<<", "<< temp->rightPtr->wordCount<<", "<<"Lines: ";
-						for(int j;j<temp->rightPtr->lines.size(); j++)
+						for(int j = 0; j < temp->rightPtr->lines.size(); j++)
 						{
-							cout<< temp->rightPtr->lines[j];
-							if(j>temp->rightPtr->lines.size()-1)
-							{
-								cout<<", ";
-							}
-							else
-							{
-								cout<< endl;
-							}
+							cout << temp->rightPtr->lines[j] << ", ";
 						}
+						cout << "\n";
 					}
 				}
 				visitedNodeStack.erase(visitedNodeStack.begin());
@@ -495,7 +494,25 @@ class indexBST
 		}
 	/*-----------------------------------------------------------------------------------------------------------------------------*/
 	private:
+		
 		IndexBST_Node* rootPtr = nullptr;
+		
+		template<typename type>
+		bool inVec(vector<type> vec, type element)
+		/*
+		inVec function
+		Simple helper function to determine whether or not an element is in a vector. Outputs a boolean value indicating the fact.
+		*/
+		{
+			for (int i = 0; i < vec.size(); i++)
+			{
+				if (vec[i] == element)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 
 };
 

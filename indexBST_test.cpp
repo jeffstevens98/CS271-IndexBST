@@ -17,20 +17,20 @@ using namespace std;
 int main()
 {
 
-  string textFile = "test.txt";
+  string textFile = "ProgramDefects.txt";
   indexBST testTree = indexBST(textFile);
   cout << "Total nodes in " << textFile << " tree: " << testTree.totalNodes() << endl;
   cout << "Tree height: " << testTree.height() << endl;
-  cout << "Print index: " << endl;
   /*
+  cout << "Print index: " << endl;
   testTree.printIndex();
+  */
   cout << "Bread-first traversal: " << endl;
   testTree.traversal();
-  cout << "Max occurrences: " << endl;
-  testTree.maxOccurrences();
+  cout << "Max occurrences:\n" << testTree.maxOccurrences() << "\n\n";
   cout << "Starts with:" << endl;
-  testTree.startsWith('a');
-  */
+  testTree.startsWith('l');
+  
   return 0;
 
 }

@@ -23,7 +23,6 @@ class IndexBST_Node {
 public:
    IndexBST_Node() //constructor
    {
-	word = "hello world!";
    }
    //NODETYPE getData() const {return data;}
 private:

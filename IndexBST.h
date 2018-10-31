@@ -21,116 +21,13 @@ is stored in a binary search tree data structure.
 #include<algorithm>
 #include<cmath>
 #include<math.h>
+#include<cctype>
 using namespace std;
 
 class indexBST
 {
 	friend class IndexBST_Node;
 	public:
-
-		//Constructor
-		/*indexBST(string fileName)  //i believe this is wrong
-		{
-			string content; //output of getline
-			ifstream input; //name of the stream
-			input.open(fileName);
-			string word;
-			vector<string> words; //vector of words, used to remember the words that are already in the tree
-			int lineNum = 0;
-			bool inWords = false;
-			while(getline(input,content)) //grab each line of the file
-			{
-				inWords = false;
-				word = "";
-				lineNum++;
-				for(int i = 0; i < content.length(); i++) //find words and place them into a vector
-				{
-					if (content[i] == ' ')
-					{
-						for(int j = 0; j < words.size(); j++)
-						{
-							if (word == words[j])
-							{
-								inWords = true;
-							}
-						}
-						if (inWords == false) // if we haven't seen the word, create a node for it
-						{
-							//Create a new node
-							if (rootPtr == nullptr) //
-							{
-								cout << "assigning values to root pointer";
-								rootPtr->word = word;
-								rootPtr->wordCount++;
-								rootPtr->lines.push_back(lineNum);
-							}
-							else
-							{
-								IndexBST_Node* temp = traversal(false);
-								temp->word = word;
-								temp->wordCount++;
-								temp->lines.push_back(lineNum);
-							}
-							words.push_back(word);
-							word = "";
-							inWords = false;
-						}
-						else //if the word is already a word that we've seen, update its node value
-						{
-							vector<IndexBST_Node*> visitedNodeStack;
-							IndexBST_Node* searchTemp = rootPtr;
-							visitedNodeStack.push_back(searchTemp);
-							if (searchTemp->word == word) //special case for if the word is the first in the Tree
-							{
-								searchTemp->wordCount++;
-								searchTemp->lines.push_back(lineNum);
-							}
-							while(searchTemp != nullptr)
-							{
-								if(searchTemp->leftPtr != nullptr)
-								{
-									visitedNodeStack.push_back(searchTemp->leftPtr);
-								}
-								if (searchTemp->leftPtr->word == word)
-								{
-									searchTemp->leftPtr->wordCount++;
-									searchTemp->lines.push_back(lineNum);
-									break;
-								}
-								if(searchTemp->rightPtr != nullptr)
-								{
-									visitedNodeStack.push_back(searchTemp->rightPtr);
-								}
-								if (searchTemp->rightPtr->word == word)
-								{
-									searchTemp->rightPtr->wordCount++;
-									searchTemp->lines.push_back(lineNum);
-									break;
-								}
-								visitedNodeStack.erase(visitedNodeStack.begin());
-								if (visitedNodeStack.size() >= 1)
-								{
-									searchTemp = visitedNodeStack[0];
-								}
-								else
-								{
-									cout << "Error: No visited nodes" << endl;
-								}
-							}
-						}
-					}
-					else
-					{
-						word += content[i];
-					}
-				}
-			}
-
-			cout << rootPtr->word;
-
-		}
-*/
-
 
 		indexBST(string fileName)   //I belive this is the correct constructor
 		/*
@@ -141,21 +38,30 @@ class indexBST
 		{
 			string content; //output of getline
 			ifstream input; //name of the stream
-			input.open(fileName);
-			string word;
+			input.open(fileName); //opens the file stream
+			string word; //the word from the line which we consider to place in the tree
 			vector<string> words; //vector of words, used to remember the words that are already in the tree
 			int lineNum = 0;
 			bool inWords = false;
 			while(getline(input,content)) //grab each line of the file
 			{
-				cout << "getting a new line to process..." << endl;
+				//cout << "getting a new line to process..." << endl; 
+				transform(content.begin(), content.end(), content.begin(), ::tolower); //slick way to make each line we grab all lower case
+				
+				//cout << content << endl;
 				inWords = false;
 				word = "";
 				lineNum++;
 				for(int i = 0; i < content.length(); i++) //find words and place them into a vector
 				{
-					if (content[i] == ' ')
+					//cout << content[i] << endl;
+					if ((content[i] == ' ' || ispunct(((int)content[i])) == true || ((content[i] == content.back()) && (ispunct((int)content[i]) == false))) && (word.length() > 0)) //if the current character is a space or punctuation, and the word length is at least 1, break off as a new word
 					{
+						if ((content[i] == content.back()) && (ispunct((int)content[i]) == false)) //special case for adding last characters of lines
+						{
+							word += content[i];
+						}
+						//cout << "word found: " << word << "|" << endl;
 						for(int j = 0; j < words.size(); j++)
 						{
 							if (word == words[j])
@@ -168,21 +74,21 @@ class indexBST
 							//Create a new node
 							if (rootPtr == nullptr) //
 							{
-								cout << "assigning values to root pointer" << endl;
+								//cout << "assigning values to root pointer" << endl;
 								rootPtr = new IndexBST_Node();
 								rootPtr->word = word;
-								cout << "assiging word data..." << endl;
+								//cout << "assigning word data..." << endl;
 								rootPtr->wordCount++;
-								cout << "incrementing word count..." << endl;
+								//cout << "incrementing word count..." << endl;
 								rootPtr->lines.push_back(lineNum);
-								cout << "pushing back line num into vector..." << endl;
-								cout << "sucessfully created a node" << endl;
+								//cout << "pushing back line num into vector..." << endl;
+								//cout << "sucessfully created a node" << endl;
 							}
 							else
 							{
-								cout << "calling insert" << endl;
+								//cout << "calling insert" << endl;
 								insert(word, lineNum);
-								cout << "completed insert function" << endl;
+								//cout << "completed insert function" << endl;
 							}
 							words.push_back(word);
 							word = "";
@@ -190,45 +96,54 @@ class indexBST
 						}
 						else //if the word is already a word that we've seen, update its node value
 						{
-							cout << "updating node values..." << endl;
+							//cout << "updating node values..." << endl;
 							IndexBST_Node* parent = new IndexBST_Node();
 							parent = rootPtr;
-							if(rootPtr->word== word)
+							if(rootPtr->word == word)
 							{
-								cout << "updating root pointer" << endl;
+								//cout << "updating root pointer" << endl;
 								rootPtr->wordCount++;
 								rootPtr->lines.push_back(lineNum);
 							}
 							else
 							{
+								//cout << word << endl;
 								while(parent != nullptr)
 								{
-									cout << "traversing..." << endl;
+									//cout << "traversing..." << "current word: " << parent->word << "|" <<  endl;
+									//cout << parent->word << endl;
 									if(parent->word > word)
 									{
+										//cout << "going to left child..." << endl;
 										parent = parent->leftPtr;
 									}
 									else if (parent->word < word)
 									{
+										//cout << "going to right child..." << endl;
 										parent = parent->rightPtr;
 									}
-									else if (parent->word== word)
+									else if (parent->word == word)
 									{
+										//cout << "updating wordCount and line vector..." << endl;
 										parent->wordCount++;
 										parent->lines.push_back(lineNum);
+										break;
 									}
 								}
 							}
+							word = "";
 							inWords = false;
 						}
 					}
 					else
 					{
-						word += content[i];
+						if (ispunct((int)content[i]) == false && content[i] != ' ')
+						{
+							word += content[i];
+						}
 					}
 				}
 			}
-			cout << rootPtr->word;
 		}
 
 
@@ -239,15 +154,15 @@ class indexBST
 		* Insert method
 		*
 		* Input:
-		*		entry -
-		*		line -
+		*		entry - the word to be inserted
+		*		line - the line number the entry was found on in the document
 		* Output:
 		*		Returns nothing, but modifies the existing indexBST object.
 		*/
 		{
 			if(rootPtr == nullptr)
 			{
-				cout << "inserting at root" << endl;
+				//cout << "inserting at root" << endl;
 			    rootPtr = new IndexBST_Node();
 				rootPtr->word= entry;
 				rootPtr->wordCount++;
@@ -255,7 +170,7 @@ class indexBST
 			}
 			else
 			{
-				cout << "inserting a leaf node" << endl;
+				//cout << "inserting a leaf node" << endl;
 				IndexBST_Node* parent = rootPtr;
 				IndexBST_Node* child = rootPtr;
 				while(child != nullptr)
@@ -263,36 +178,41 @@ class indexBST
 					parent = child;
 					if(parent->word > entry)
 					{
-						cout << "moving child to left node" << endl;
+						//cout << "moving child to left node" << endl;
 						child = parent->leftPtr;
 					}
 					else
 					{
-						cout << "moving child to right node" << endl;
+						//cout << "moving child to right node" << endl;
 						child =parent->rightPtr;
 					}
 
 				}
 				if(parent-> leftPtr == child)
 				{
-					parent->leftPtr-> word= entry;
+					parent->leftPtr = new IndexBST_Node();
+					//cout << "inserting @ left child" << endl;
+					parent->leftPtr-> word = entry;
 					parent->leftPtr-> wordCount+=1;
 					parent->leftPtr-> lines.push_back(line);
 				}
 				else
 				{
+					parent->rightPtr = new IndexBST_Node();
+					//cout << "inserting @ right child" << endl;
 					parent->rightPtr-> word= entry;
 					parent->rightPtr-> wordCount+=1;
 					parent->rightPtr-> lines.push_back(line);
 				}
 			}
+			//cout << "successful insertion, leaving insert function..." << endl;
 		}
 
 
 
 
 
-		int totalNodes()  //stays the same
+		int totalNodes()
 		/*
 		* Total nodes method
 		* A method that finds how many nodes are in the tree
@@ -302,25 +222,36 @@ class indexBST
 		*		An integer value indicating the number of nodes in the tree
 		*/
 		{
-			int number_of_nodes=0;
+			//cout << "beginning totalNodes function" << endl;
+			int number_of_nodes = 0;
 			vector<IndexBST_Node*> visitedNodeStack;
 			IndexBST_Node* temp = rootPtr;
+			//rootPtr = new IndexBST_Node();
+			//cout << "initial variables declared" << endl;
+			
 			if (temp == nullptr)
 			{
+				//cout << "empty tree" << endl;
 				return number_of_nodes;
 			}
-
-			number_of_nodes++;
-			visitedNodeStack.push_back(temp);
-			while(temp != nullptr)
+			else
 			{
+				number_of_nodes++;
+			}
+			
+			visitedNodeStack.push_back(temp);
+			while(temp != nullptr && visitedNodeStack.size() > 0)
+			{
+				//cout << "traversing, nodecount: " << number_of_nodes << " current word: " << temp->word << endl; 
 				if(temp->leftPtr != nullptr)
 				{
+					//cout << "going to left child" << endl;
 					number_of_nodes++;
 					visitedNodeStack.push_back(temp->leftPtr);
 				}
-				if(temp->rightPtr != nullptr)
+				if (temp->rightPtr != nullptr)
 				{
+					//cout << "going to right child" << endl;
 					number_of_nodes++;
 					visitedNodeStack.push_back(temp->rightPtr);
 				}
@@ -330,7 +261,15 @@ class indexBST
 			return number_of_nodes;
 		}
 
-		int height() //stays the same
+		int height()
+		/*
+		* Height method
+		* Method that returns the height of the binary search tree object
+		* Input:
+		* 		No parameters; a method for an existing Tree
+		* Output: 
+		*		An integer value of the height of the binary serach tree
+		*/
 		{
 			int count= totalNodes();
 			int height= log(count)/log(2);
@@ -415,7 +354,7 @@ class indexBST
 		*		Returns a string of the words which have max occurrences
 		*/
 		{
-			int max=0;
+			int max = 0;
 			vector<string> words;
 			vector<IndexBST_Node*> visitedNodeStack;
 			IndexBST_Node* temp = rootPtr;

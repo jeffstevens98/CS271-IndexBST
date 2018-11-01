@@ -34,6 +34,14 @@ class indexBST
 		* indexBST constructor
 		* Default constructor for indexBST class, binary search tree object. A string is pased as a parameter, which
 		* indicates the filepath of the text document that you want to process with the indexBST.
+		*
+		* Time Complexity:
+		* T(n) = The summation of i = 0 to c, the number of characters in the .txt file, of i*w, where w is the number of words in the vector identifying words
+		* 		 that already are in our binary search tree. In the worst case, our words would be very short and be added to our vector almost every iteration.
+		*		 Additionally, we iterate through the file a total of c times, the number of characters in the document. As c grows larger and w grows larger, the 
+		*		 the running time grows at an almost exponential rate.
+		*
+		* Therefore, the time complexity is close to quadratic, or O(n^2)
 		*/
 		{
 			string content; //output of getline
@@ -45,23 +53,18 @@ class indexBST
 			bool inWords = false;
 			while(getline(input,content)) //grab each line of the file
 			{
-				//cout << "getting a new line to process..." << endl; 
-				transform(content.begin(), content.end(), content.begin(), ::tolower); //slick way to make each line we grab all lower case
-				
-				//cout << content << endl;
+				transform(content.begin(), content.end(), content.begin(), ::tolower); //slick way to make each line we grab all lower cases;
 				inWords = false;
 				word = "";
 				lineNum++;
 				for(int i = 0; i < content.length(); i++) //find words and place them into a vector
 				{
-					//cout << content[i] << endl;
 					if ((content[i] == ' ' || ispunct(((int)content[i])) == true || ((content[i] == content.back()) && (ispunct((int)content[i]) == false))) && (word.length() > 0)) //if the current character is a space or punctuation, and the word length is at least 1, break off as a new word
 					{
 						if ((content[i] == content.back()) && (ispunct((int)content[i]) == false)) //special case for adding last characters of lines
 						{
 							word += content[i];
 						}
-						//cout << "word found: " << word << "|" << endl;
 						for(int j = 0; j < words.size(); j++)
 						{
 							if (word == words[j])
@@ -71,26 +74,17 @@ class indexBST
 						}
 						if (inWords == false) // if we haven't seen the word, create a node for it
 						{
-							//cout << "pushing back a new word: " << word << endl;
 							words.push_back(word);
-							//Create a new node
-							if (rootPtr == nullptr) //
+							if (rootPtr == nullptr)
 							{
-								//cout << "assigning values to root pointer" << endl;
 								rootPtr = new IndexBST_Node();
 								rootPtr->word = word;
-								//cout << "assigning word data..." << endl;
 								rootPtr->wordCount++;
-								//cout << "incrementing word count..." << endl;
 								rootPtr->lines.push_back(lineNum);
-								//cout << "pushing back line num into vector..." << endl;
-								//cout << "sucessfully created a node" << endl;
 							}
 							else
 							{
-								//cout << "calling insert" << endl;
 								insert(word, lineNum);
-								//cout << "completed insert function" << endl;
 							}
 							//reset word string
 							inWords = false;
@@ -98,12 +92,10 @@ class indexBST
 						}
 						else //if the word is already a word that we've seen, update its node value
 						{
-							//cout << "updating node values..." << endl;
 							IndexBST_Node* parent = new IndexBST_Node();
 							parent = rootPtr;
 							if(rootPtr->word == word)
 							{
-								//cout << "updating root pointer" << endl;
 								if (inVec(rootPtr->lines,lineNum) == false)
 								{
 									rootPtr->lines.push_back(lineNum);
@@ -112,24 +104,18 @@ class indexBST
 							}
 							else
 							{
-								//cout << word << endl;
 								while(parent != nullptr)
 								{
-									//cout << "traversing..." << "current word: " << parent->word << "|" <<  endl;
-									//cout << parent->word << endl;
 									if(parent->word > word)
 									{
-										//cout << "going to left child..." << endl;
 										parent = parent->leftPtr;
 									}
 									else if (parent->word < word)
 									{
-										//cout << "going to right child..." << endl;
 										parent = parent->rightPtr;
 									}
 									else if (parent->word == word)
 									{
-										//cout << "updating wordCount and line vector..." << endl;
 										parent->wordCount++;
 										if (inVec(parent->lines,lineNum) == false)
 										{
@@ -163,11 +149,15 @@ class indexBST
 		*		line - the line number the entry was found on in the document
 		* Output:
 		*		Returns nothing, but modifies the existing indexBST object.
+		*
+		* Time Complexity: 
+		* 		T(n) = h, where h is the height of the tree.
+		*
+		* Therefore, the time complexity is O(h).
 		*/
 		{
 			if(rootPtr == nullptr)
 			{
-				//cout << "inserting at root" << endl;
 			    rootPtr = new IndexBST_Node();
 				rootPtr->word= entry;
 				rootPtr->wordCount++;
@@ -175,7 +165,6 @@ class indexBST
 			}
 			else
 			{
-				//cout << "inserting a leaf node" << endl;
 				IndexBST_Node* parent = rootPtr;
 				IndexBST_Node* child = rootPtr;
 				while(child != nullptr)
@@ -183,12 +172,10 @@ class indexBST
 					parent = child;
 					if(parent->word > entry)
 					{
-						//cout << "moving child to left node" << endl;
 						child = parent->leftPtr;
 					}
 					else
 					{
-						//cout << "moving child to right node" << endl;
 						child =parent->rightPtr;
 					}
 
@@ -196,7 +183,6 @@ class indexBST
 				if(parent-> leftPtr == child)
 				{
 					parent->leftPtr = new IndexBST_Node();
-					//cout << "inserting @ left child" << endl;
 					parent->leftPtr-> word = entry;
 					parent->leftPtr-> wordCount+=1;
 					parent->leftPtr-> lines.push_back(line);
@@ -204,13 +190,11 @@ class indexBST
 				else
 				{
 					parent->rightPtr = new IndexBST_Node();
-					//cout << "inserting @ right child" << endl;
 					parent->rightPtr-> word= entry;
 					parent->rightPtr-> wordCount+=1;
 					parent->rightPtr-> lines.push_back(line);
 				}
 			}
-			//cout << "successful insertion, leaving insert function..." << endl;
 		}
 
 		int totalNodes()
@@ -221,18 +205,17 @@ class indexBST
 		*		No parameters; a method for an existing Tree
 		* Output:
 		*		An integer value indicating the number of nodes in the tree
+		*
+		* Time Complexity: 
+		* 		T(n) = h, where h is the height of the tree.
+		*		
 		*/
 		{
-			//cout << "beginning totalNodes function" << endl;
 			int number_of_nodes = 0;
 			vector<IndexBST_Node*> visitedNodeStack;
 			IndexBST_Node* temp = rootPtr;
-			//rootPtr = new IndexBST_Node();
-			//cout << "initial variables declared" << endl;
-			
 			if (temp == nullptr)
 			{
-				//cout << "empty tree" << endl;
 				return number_of_nodes;
 			}
 			else
@@ -242,17 +225,14 @@ class indexBST
 			
 			visitedNodeStack.push_back(temp);
 			while(temp != nullptr && visitedNodeStack.size() > 0)
-			{
-				//cout << "traversing, nodecount: " << number_of_nodes << " current word: " << temp->word << endl; 
+			{ 
 				if(temp->leftPtr != nullptr)
 				{
-					//cout << "going to left child" << endl;
 					number_of_nodes++;
 					visitedNodeStack.push_back(temp->leftPtr);
 				}
 				if (temp->rightPtr != nullptr)
 				{
-					//cout << "going to right child" << endl;
 					number_of_nodes++;
 					visitedNodeStack.push_back(temp->rightPtr);
 				}
@@ -270,6 +250,9 @@ class indexBST
 		* 		No parameters; a method for an existing Tree
 		* Output: 
 		*		An integer value of the height of the binary serach tree
+		*
+		* Time Complexity:
+		*		T(n) = T(n/2) + T(n/2) = O(H)
 		*/
 		{
 			return heightHelper(rootPtr);
@@ -284,6 +267,9 @@ class indexBST
 		*		No parameters; a method for an existing Tree
 		* Ouput:
 		*		Returns nothing, but prints to the console all of the words in the tree with associated data.
+		*
+		* Time Complexity:
+		*		T(n)= O(nlgn) + O(n) + O(n) + n(L) = O(nlgn)
 		*/
 		{
 			vector<IndexBST_Node*> visitedNodeStack;
@@ -334,6 +320,8 @@ class indexBST
 		*		No parameters; a method for an existing Tree
 		*	Output:
 		*		Returns nothing, but prints to the console the traversal of the tree being operated upon.
+		*
+		* Time Complexity: T(n)= O(n)
 		*/
 		{
 			vector<IndexBST_Node*> visitedNodeStack;
@@ -375,6 +363,8 @@ class indexBST
 		*		No parameters; a method for an existing Tree
 		*	Output:
 		*		Returns a string of the words which have max occurrences
+		*
+		* Time Complexity= O(n)
 		*/
 		{
 			int max = 0;
@@ -439,9 +429,7 @@ class indexBST
 			}
 			return listOfWords;
 		}
-
-
-
+		
 
 		void startsWith(int character)
 		/*
@@ -451,6 +439,8 @@ class indexBST
 		*		character - a character which the words that are desired to be printed begin with
 		* Output:
 		*		Returns nothing, but prints words that begin with the passed character.
+		*
+		* Time Complexity: T(n)= O(H)
 		*/
 		{
 			vector<IndexBST_Node*> visitedNodeStack;
@@ -516,6 +506,7 @@ class indexBST
 		IndexBST_Node* rootPtr = nullptr;
 		
 		int heightHelper(IndexBST_Node* root)
+		//see height method
 		{
 			if(root == nullptr)
 			{
@@ -555,6 +546,7 @@ class indexBST
 		
 		template<typename type>
 		vector<type> mergeSort(vector<type> m)
+		//Merge sort used to sort the entries for printIndex
 		{
 		   if (m.size() <= 1)
 		   {
@@ -584,6 +576,7 @@ class indexBST
 		
 		template<typename type>
 		vector<type> merge(vector<type> left, vector<type> right)
+		//Merge operation to assist merge sort
 		{
 		   vector<type> result;
 		   while ((int)left.size() > 0 || (int)right.size() > 0) 

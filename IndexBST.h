@@ -154,9 +154,6 @@ class indexBST
 			}
 		}
 
-
-
-
 		void insert(string entry, int &line)
 		/*
 		* Insert method
@@ -215,10 +212,6 @@ class indexBST
 			}
 			//cout << "successful insertion, leaving insert function..." << endl;
 		}
-
-
-
-
 
 		int totalNodes()
 		/*
@@ -279,13 +272,8 @@ class indexBST
 		*		An integer value of the height of the binary serach tree
 		*/
 		{
-			int count= totalNodes();
-			int height= log(count)/log(2);
-			height= ceil(height);
+			return heightHelper(rootPtr);
 		}
-
-
-
 
 		void printIndex()
 		/*
@@ -298,14 +286,45 @@ class indexBST
 		*		Returns nothing, but prints to the console all of the words in the tree with associated data.
 		*/
 		{
-			//make list of all nodes
-			//modify sorting algorithm to sort nodes based on word values
-			//print word, occurence, and line numbers
+			vector<IndexBST_Node*> visitedNodeStack;
+			vector<IndexBST_Node*> nodeList;
+			IndexBST_Node* temp = rootPtr;
+			//1. Traversal that builds up a list of nodes
+			if (temp != nullptr)
+			{
+				nodeList.push_back(temp);
+				visitedNodeStack.push_back(temp);
+			}
+			while(temp != nullptr && visitedNodeStack.size() > 0)
+			{
+				if(temp->leftPtr != nullptr)
+				{
+					nodeList.push_back(temp->leftPtr);
+					visitedNodeStack.push_back(temp->leftPtr);
+				}
+				if(temp->rightPtr != nullptr)
+				{
+					nodeList.push_back(temp->rightPtr);
+					visitedNodeStack.push_back(temp->rightPtr);
+				}
+				visitedNodeStack.erase(visitedNodeStack.begin());
+				temp = visitedNodeStack[0];
+			}
+			cout << nodeList.size() << endl;
+			//2. Throw list of nodes into a merge sort
+			vector<IndexBST_Node*> sortedNodeList = mergeSort(nodeList);
+			//3. Print all of the sorted nodes and their information
+			for(int i = 0; i < sortedNodeList.size(); i++)
+			{
+				
+				cout << sortedNodeList[i]->word << ", " << sortedNodeList[i]->wordCount << ", " << "Lines: ";
+				for(int j = 0; j < sortedNodeList[j]->lines.size(); j++)
+				{
+					cout << sortedNodeList[i]->lines[j] << ", ";
+				}
+				cout << "\n";
+			}
 		}
-
-
-
-
 
 		void traversal()
 		/*
@@ -346,7 +365,6 @@ class indexBST
 			}
 			cout << "END TRAVERSAL" << "\n\n";
 		}
-
 
 
 		string maxOccurrences()
@@ -497,6 +515,27 @@ class indexBST
 		
 		IndexBST_Node* rootPtr = nullptr;
 		
+		int heightHelper(IndexBST_Node* root)
+		{
+			if(root == nullptr)
+			{
+				return 0;	
+			}
+			else
+			{
+				int leftMax= heightHelper(root->leftPtr);	
+				int rightMax= heightHelper(root->rightPtr);
+				if(leftMax> rightMax)
+				{
+					return leftMax+1;
+				}
+				else
+				{
+					return rightMax+1;
+				}
+			}		
+		}	
+		
 		template<typename type>
 		bool inVec(vector<type> vec, type element)
 		/*
@@ -513,7 +552,75 @@ class indexBST
 			}
 			return false;
 		}
+		
+		template<typename type>
+		vector<type> mergeSort(vector<type> m)
+		{
+		   if (m.size() <= 1)
+		   {
+		      return m;
+		   }
+		 
+		   vector<type> left, right, result;
+		   int middle = ((int)m.size()+ 1) / 2;
+		 
+		   for (int i = 0; i < middle; i++) 
+		   {
+		      left.push_back(m[i]);
+		   }
+		
+		   for (int i = middle; i < (int)m.size(); i++) 
+		   {
+		      right.push_back(m[i]);
+		   }
+		 
+		   left = mergeSort(left);
+		   right = mergeSort(right);
+		   result = merge(left, right);
+		 
+		   return result;
+		}
 
+		
+		template<typename type>
+		vector<type> merge(vector<type> left, vector<type> right)
+		{
+		   vector<type> result;
+		   while ((int)left.size() > 0 || (int)right.size() > 0) 
+		   {
+		      if ((int)left.size() > 0 && (int)right.size() > 0)
+			  {
+		         if (left.front()->word <= right.front()->word)
+				 {
+		            result.push_back(left.front());
+		            left.erase(left.begin());
+		         } 
+		   		 else 
+		   		 {
+		            result.push_back(right.front());
+		            right.erase(right.begin());
+				 }
+		      }  
+			  else if (left.size() > 0) 
+			  {
+		            for (int i = 0; i < left.size(); i++)
+		            {
+		               result.push_back(left[i]);
+		        	}
+		            break;
+		      }  
+			  else if (right.size() > 0) 
+			  {
+		            for (int i = 0; i < right.size(); i++)
+		            {
+		               result.push_back(right[i]);
+		        	}
+		            break;
+		      }
+		   }
+		   return result;
+		}
+		
 };
 
 #endif
